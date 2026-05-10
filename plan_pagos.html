@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de Pagos</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --surface: #ffffff;
+    --surface2: #f5f1ea;
+    --border: #e8e0d4;
+    --text: #3a3530;
+    --muted: #9a9088;
+    --accent-rose: #e8b4b8;
+    --accent-rose-bg: #fdf0f1;
+    --accent-sage: #a8c5b0;
+    --accent-sage-bg: #eef5f0;
+    --accent-sky: #aac4d8;
+    --accent-sky-bg: #eef4f9;
+    --accent-peach: #e8c4a0;
+    --accent-peach-bg: #fdf4ec;
+    --accent-butter: #e0d09c;
+    --accent-butter-bg: #faf7e8;
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem 5rem;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .header-left h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2.2rem;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .header-left h1 em { font-style: italic; color: #c09090; }
+  .subtitle { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .motivational {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--muted);
+    text-align: right;
+    max-width: 180px;
+    line-height: 1.4;
+  }
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .summary-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .s-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+  .s-value { font-family: var(--font-display); font-size: 1.2rem; color: var(--text); }
+  .s-value.ok   { color: #6a9e78; }
+  .s-value.warn { color: #c09060; }
+  .s-value.bad  { color: #c07070; }
+  .s-value.info { color: #7090b8; }
+  .month-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+  .nav-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--border); color: var(--text); }
+  .month-title { font-family: var(--font-display); font-style: italic; font-size: 1.4rem; color: var(--text); flex: 1; }
+  .progress-wrap { flex: 1; max-width: 180px; }
+  .progress-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-sage), var(--accent-sky));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .progress-label { font-size: 10px; color: var(--muted); }
+  .section-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .payments-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; }
+  .payment-row {
+    display: grid;
+    grid-template-columns: 32px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .payment-row:hover { border-color: #d0c8bc; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .payment-row.paid { background: var(--accent-sage-bg); border-color: #c0ddc8; }
+  .payment-row.is-min { background: var(--accent-sky-bg); border-color: #c0d4e8; }
+  .payment-row.is-brother { background: var(--accent-rose-bg); border-color: var(--accent-rose); }
+  .payment-row.is-brother.paid { background: var(--accent-sage-bg); border-color: #c0ddc8; }
+  .check-box {
+    width: 26px; height: 26px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+  .payment-row.paid .check-box { background: var(--accent-sage); border-color: var(--accent-sage); color: white; }
+  .payment-row.is-min .check-box { background: var(--accent-sky-bg); border-color: var(--accent-sky); color: #7090b8; font-size: 10px; }
+  .payment-row.is-min.paid .check-box { background: var(--accent-sage); border-color: var(--accent-sage); color: white; }
+  .payment-row.is-brother .check-box { border-color: var(--accent-rose); }
+  .payment-row.is-brother.paid .check-box { background: var(--accent-sage); border-color: var(--accent-sage); color: white; }
+  .payment-info { min-width: 0; }
+  .payment-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .payment-row.paid .payment-name { color: #6a9e78; text-decoration: line-through; text-decoration-color: #a0c8a8; }
+  .payment-row.is-min .payment-name { color: #6080a8; }
+  .payment-row.is-min.paid .payment-name { color: #6a9e78; text-decoration: line-through; text-decoration-color: #a0c8a8; }
+  .payment-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .payment-row.paid .payment-sub { color: #90b898; }
+  .payment-row.is-min .payment-sub { color: #90a8c0; }
+  .tag { font-size: 9px; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; white-space: nowrap; }
+  .tag-critical { background: var(--accent-rose-bg); color: #b07080; border: 1px solid var(--accent-rose); }
+  .tag-min      { background: var(--accent-sky-bg);  color: #6080a8; border: 1px solid var(--accent-sky); }
+  .tag-ok       { background: var(--accent-sage-bg); color: #5a8868; border: 1px solid var(--accent-sage); }
+  .tag-warn     { background: var(--accent-peach-bg);color: #a07040; border: 1px solid var(--accent-peach); }
+  .tag-brother  { background: #fff0f2; color: #b07080; border: 1px solid var(--accent-rose); }
+  .payment-amount { text-align: right; font-family: var(--font-display); font-size: 1rem; color: var(--text); white-space: nowrap; }
+  .payment-row.paid .payment-amount       { color: #6a9e78; }
+  .payment-row.is-min .payment-amount     { color: #7090b8; }
+  .payment-row.is-min.paid .payment-amount{ color: #6a9e78; }
+  .note-box {
+    background: var(--accent-butter-bg);
+    border: 1px solid var(--accent-butter);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12px; color: #907840; line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .note-box strong { color: #786030; }
+  .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+  .global-section { margin-top: 1.5rem; }
+  .gp-title { font-family: var(--font-display); font-style: italic; font-size: 1rem; color: var(--muted); margin-bottom: 1rem; }
+  .months-dots { display: flex; flex-wrap: wrap; gap: 6px; }
+  .month-dot {
+    width: 52px; height: 44px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 9px; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+    gap: 2px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .month-dot:hover { border-color: var(--accent-rose); color: var(--text); transform: translateY(-1px); }
+  .month-dot.current  { border-color: var(--accent-rose); color: #c09090; background: var(--accent-rose-bg); }
+  .month-dot.complete { background: var(--accent-sage-bg); border-color: var(--accent-sage); color: #5a8868; }
+  .month-dot.partial  { background: var(--accent-butter-bg); border-color: var(--accent-butter); color: #907840; }
+  .dot-pct { font-size: 11px; font-weight: 500; }
+  .sync-status {
+    font-size: 10px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 1rem;
+  }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .sync-dot.ok   { background: #6a9e78; }
+  .sync-dot.err  { background: #c07070; }
+  .sync-dot.spin { background: var(--accent-sky); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @media (max-width: 500px) {
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    .payment-row { grid-template-columns: 32px 1fr auto; }
+    .payment-row .tag { display: none; }
+    .motivational { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>mi plan de <em>pagos</em></h1>
+    <div class="subtitle">seguimiento mensual · sueldo $1.500.000</div>
+  </div>
+  <div class="motivational">cada peso pagado<br>es un paso hacia<br>la libertad ✨</div>
+</header>
+
+<div class="sync-status">
+  <div class="sync-dot spin" id="syncDot"></div>
+  <span id="syncMsg">Conectando...</span>
+</div>
+
+<div class="summary-bar">
+  <div class="summary-item"><div class="s-label">Pagado</div><div class="s-value ok"  id="sumPaid">$0</div></div>
+  <div class="summary-item"><div class="s-label">Pendiente</div><div class="s-value warn" id="sumPending">$0</div></div>
+  <div class="summary-item"><div class="s-label">Mínimos</div><div class="s-value info" id="sumMin">$0</div></div>
+  <div class="summary-item"><div class="s-label">Margen</div><div class="s-value" id="sumMargin">$0</div></div>
+</div>
+
+<div class="month-nav">
+  <button class="nav-btn" onclick="changeMonth(-1)">← ant</button>
+  <div class="month-title" id="monthTitle">—</div>
+  <button class="nav-btn" onclick="changeMonth(1)">sig →</button>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">cargando...</div>
+  </div>
+</div>
+
+<div class="section-label">pagos prioritarios — clic para marcar</div>
+<div class="payments-grid" id="gridPriority"></div>
+
+<div class="section-label">mínimos mensuales — clic para marcar</div>
+<div class="payments-grid" id="gridMin"></div>
+
+<div class="note-box">
+  🌿 <strong>Recuerda:</strong> Visa BCI y Visa BE están en mínimo estratégico. Cuando tengas margen extra, ponlo primero en el crédito consumo (el mayor) o habla con la Defensoría del Deudor para renegociar.<br><br>
+  <strong>Defensoría del Deudor:</strong> 800 200 892 · defensoriadeldeutor.cl · gratuito
+</div>
+
+<div class="divider"></div>
+
+<div class="global-section">
+  <div class="gp-title">tu progreso — junio 2026 en adelante</div>
+  <div class="months-dots" id="monthsDots"></div>
+</div>
+
+<script>
+const INCOME = 1500000;
+const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const START_MONTH = 5; // Junio = índice 5
+const START_YEAR  = 2026;
+
+const PAYMENTS = [
+  { id: 'hipotecario', name: 'Crédito hipotecario',       sub: 'Tu hogar — nunca se atrasa',              amount: 340000, type: 'priority', tag: 'critical', tagLabel: 'crítico' },
+  { id: 'consumo',     name: 'Crédito consumo',            sub: 'Cuota 4/58 · saldo ~$13.5M',              amount: 260000, type: 'priority', tag: 'critical', tagLabel: 'crítico' },
+  { id: 'cencosud',   name: 'Cencosud',                   sub: 'Tarjeta de tu hermano · hay que pagarla', amount: 270000, type: 'priority', tag: 'brother',  tagLabel: 'hermano', brother: true },
+  { id: 'cuentas',    name: 'Cuentas (luz / agua / gas)',  sub: 'Servicios del hogar',                     amount: 200000, type: 'priority', tag: 'critical', tagLabel: 'esencial' },
+  { id: 'comida',     name: 'Comida',                      sub: 'Necesidad básica',                        amount: 100000, type: 'priority', tag: 'ok',       tagLabel: 'esencial' },
+  { id: 'transporte', name: 'Transporte',                  sub: 'Para seguir trabajando',                  amount: 50000,  type: 'priority', tag: 'ok',       tagLabel: 'esencial' },
+  { id: 'aseo',       name: 'Aseo',                        sub: 'Higiene del hogar',                       amount: 25000,  type: 'priority', tag: 'ok',       tagLabel: 'esencial' },
+  { id: 'mama',       name: 'Deuda mamá',                  sub: 'Si hay aprieto, habla con ella primero',  amount: 50000,  type: 'priority', tag: 'warn',     tagLabel: 'familiar' },
+  { id: 'visabci',    name: 'Visa BCI',                    sub: 'Mínimo · saldo $1.000.000',               amount: 30000,  type: 'min',      tag: 'min',      tagLabel: 'mínimo' },
+  { id: 'visabe',     name: 'Visa Banco Estado',           sub: 'Mínimo · cuidado con hipotecario BE',     amount: 30000,  type: 'min',      tag: 'min',      tagLabel: 'mínimo' },
+  { id: 'lineabe',    name: 'Línea crédito BE',            sub: 'Interés mínimo · saldo $530.000',         amount: 20000,  type: 'min',      tag: 'min',      tagLabel: 'mínimo' },
+  { id: 'lineabci',   name: 'Línea crédito BCI',           sub: 'Interés mínimo · saldo $960.000',         amount: 25000,  type: 'min',      tag: 'min',      tagLabel: 'mínimo' },
+];
+
+let currentMonth = START_MONTH;
+let currentYear  = START_YEAR;
+
+// In-memory cache of all month states
+const cache = {};
+
+function storageKey(y, m) { return `pagos:${y}_${m}`; }
+function fmt(n) { return '$' + Math.round(n).toLocaleString('es-CL'); }
+function setSyncStatus(state, msg) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncMsg');
+  dot.className = 'sync-dot ' + state;
+  txt.textContent = msg;
+}
+
+// Cloud storage helpers
+async function cloudGet(key) {
+  try {
+    const result = await window.storage.get(key);
+    return result ? JSON.parse(result.value) : {};
+  } catch { return {}; }
+}
+
+async function cloudSet(key, data) {
+  try {
+    await window.storage.set(key, JSON.stringify(data));
+    return true;
+  } catch { return false; }
+}
+
+async function loadMonth(y, m) {
+  const k = storageKey(y, m);
+  if (cache[k] !== undefined) return cache[k];
+  const data = await cloudGet(k);
+  cache[k] = data;
+  return data;
+}
+
+async function saveMonth(y, m, state) {
+  const k = storageKey(y, m);
+  cache[k] = state;
+  setSyncStatus('spin', 'Guardando...');
+  const ok = await cloudSet(k, state);
+  if (ok) setSyncStatus('ok', 'Guardado en la nube ✓');
+  else     setSyncStatus('err', 'Error al guardar — intenta de nuevo');
+}
+
+// Render
+async function renderMonth() {
+  setSyncStatus('spin', 'Cargando...');
+  const state = await loadMonth(currentYear, currentMonth);
+  setSyncStatus('ok', 'Sincronizado ✓');
+
+  const gP = document.getElementById('gridPriority');
+  const gM = document.getElementById('gridMin');
+  gP.innerHTML = '';
+  gM.innerHTML = '';
+
+  PAYMENTS.forEach(p => {
+    const row = buildRow(p, state);
+    (p.type === 'priority' ? gP : gM).appendChild(row);
+  });
+
+  document.getElementById('monthTitle').textContent = MONTH_NAMES[currentMonth] + ' ' + currentYear;
+  updateSummary(state);
+  updateProgress(state);
+  await updateDots();
+}
+
+function buildRow(p, state) {
+  const paid      = !!state[p.id];
+  const isMin     = p.type === 'min';
+  const isBrother = !!p.brother;
+
+  const row = document.createElement('div');
+  let cls = 'payment-row';
+  if (isMin)     cls += ' is-min';
+  if (isBrother) cls += ' is-brother';
+  if (paid)      cls += ' paid';
+  row.className = cls;
+
+  const checkContent = paid ? '✓' : (isMin ? '~' : '');
+  row.innerHTML = `
+    <div class="check-box">${checkContent}</div>
+    <div class="payment-info">
+      <div class="payment-name">${p.name}</div>
+      <div class="payment-sub">${paid ? '✓ pagado' : p.sub}</div>
+    </div>
+    <span class="tag tag-${p.tag}">${p.tagLabel}</span>
+    <div class="payment-amount">${fmt(p.amount)}</div>
+  `;
+
+  row.addEventListener('click', async () => {
+    const s = await loadMonth(currentYear, currentMonth);
+    s[p.id] = !s[p.id];
+    await saveMonth(currentYear, currentMonth, s);
+    renderMonth();
+  });
+
+  return row;
+}
+
+function updateSummary(state) {
+  let paid = 0, pending = 0, minTotal = 0;
+  PAYMENTS.forEach(p => {
+    if (p.type === 'min') {
+      minTotal += p.amount;
+      if (state[p.id]) paid += p.amount;
+    } else {
+      if (state[p.id]) paid += p.amount;
+      else pending += p.amount;
+    }
+  });
+  const unpaidMin = PAYMENTS.filter(p => p.type === 'min' && !state[p.id]).reduce((a,p) => a + p.amount, 0);
+  const margin = INCOME - paid - pending - unpaidMin;
+
+  document.getElementById('sumPaid').textContent    = fmt(paid);
+  document.getElementById('sumPending').textContent = fmt(pending);
+  document.getElementById('sumMin').textContent     = fmt(minTotal);
+
+  const mEl = document.getElementById('sumMargin');
+  mEl.textContent = fmt(margin);
+  mEl.className   = 's-value ' + (margin >= 10000 ? 'ok' : margin >= 0 ? 'warn' : 'bad');
+}
+
+function updateProgress(state) {
+  const total     = PAYMENTS.length;
+  const paidCount = PAYMENTS.filter(p => state[p.id]).length;
+  const pct       = Math.round((paidCount / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${paidCount} de ${total} marcados (${pct}%)`;
+}
+
+async function updateDots() {
+  const container = document.getElementById('monthsDots');
+  container.innerHTML = '';
+  for (let i = 0; i < 24; i++) {
+    const totalMonths = START_MONTH + i;
+    const m = totalMonths % 12;
+    const y = START_YEAR + Math.floor(totalMonths / 12);
+
+    const s         = await loadMonth(y, m);
+    const paidCount = PAYMENTS.filter(p => s[p.id]).length;
+    const pct       = Math.round((paidCount / PAYMENTS.length) * 100);
+    const isCurrent  = m === currentMonth && y === currentYear;
+    const isComplete = pct === 100;
+    const isPartial  = pct > 0 && !isComplete;
+
+    const dot = document.createElement('div');
+    dot.className = 'month-dot' +
+      (isCurrent  ? ' current'  : '') +
+      (isComplete ? ' complete' : '') +
+      (isPartial  ? ' partial'  : '');
+    dot.innerHTML = `<span>${MONTH_NAMES[m].slice(0,3)}</span><span class="dot-pct">${pct > 0 ? pct + '%' : ''}</span>`;
+    dot.title = `${MONTH_NAMES[m]} ${y}`;
+    dot.addEventListener('click', () => { currentMonth = m; currentYear = y; renderMonth(); });
+    container.appendChild(dot);
+  }
+}
+
+function changeMonth(dir) {
+  const totalMonths = (currentYear - START_YEAR) * 12 + (currentMonth - START_MONTH) + dir;
+  if (totalMonths < 0) return;
+  currentMonth = (START_MONTH + totalMonths) % 12;
+  currentYear  = START_YEAR + Math.floor((START_MONTH + totalMonths) / 12);
+  renderMonth();
+}
+
+renderMonth();
+</script>
+</body>
+</html>
